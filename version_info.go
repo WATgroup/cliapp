@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: © 2023 W-A-T EU Operations Oü
+// SPDX-License-Identifier: MIT
+// SPDX-FileContributor: Created by Jose Luis Tallon <jltallon@w-a-t.group>
+
 package cliapp
 
 import (

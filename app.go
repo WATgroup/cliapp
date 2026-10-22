@@ -1,11 +1,14 @@
+// SPDX-FileCopyrightText: © 2023 W-A-T EU Operations Oü
+// SPDX-License-Identifier: MIT
+// SPDX-FileContributor: Created by Jose Luis Tallon <jltallon@w-a-t.group>
+
 package cliapp
 
 import (
-	"errors"
+	"github.com/WATgroup/errors"
 	"path/filepath"
 	"fmt"
 	"os"
-	"github.com/spf13/cobra"
 )
 
 const (
@@ -25,7 +28,7 @@ type AppInfo struct {
 type App struct {
 	Name		string
 	info		AppInfo
-	cobra		*cobra.Command
+	cmder		Commander
 	authors		[]Author
 	metadata	map[string]interface{}
 	init		bool
@@ -50,11 +53,11 @@ func New(i AppInfo) *App {
 	}
 }
 
-func (a *App) SetCommander(c *cobra.Command) error {
+func (a *App) SetCommander(c Commander) error {
 	if !a.init {
 		return errors.New(msgApp_NotInit)
 	}
-	a.cobra = c
+	a.cmder = c
 	return setupCobra(a,c)
 }
 
@@ -68,9 +71,9 @@ func (a *App) SetMetadata(mm map[string]interface{}) error {
 
 func (x *App) SetAuthors(aa ...Author) {
 	
-	if nil == x.authors {
-		x.authors = make([]Author,0,1)
-	}
+	// if nil == x.authors {
+	// 	x.authors = make([]Author,0,1)
+	// }
 	
 	for _,a := range aa {
 		x.authors = append(x.authors,a)
@@ -82,10 +85,9 @@ func (a *App) Run() {	// NORETURN
 	if !a.init {
 //		fmt.Println("FATAL: Application object not initialized properly")
 		panic(msgApp_NotInit)
-		os.Exit(127)
+		// os.Exit(127)
 	}
 	r := os.Args
-	c := a.cobra
 	
 	if 2 == len(r) {
 		switch r[1] {
@@ -95,34 +97,17 @@ func (a *App) Run() {	// NORETURN
 				printVersionInfo(a,os.Stdout)
 				os.Exit(0)
 			case "-h":
-				c.HelpFunc()(a.cobra, []string{})
+				if hf, ok := (a.cmder).(interface{HelpFunc(*command,[]string)}); ok {
+					hf.HelpFunc((a.cmder).(*command), []string{})
+				}
 				os.Exit(0)
 		}
 	}
 	
-	if err := c.Execute(); err != nil {
+	if err := a.cmder.Execute(); err != nil {
 		fmt.Println("ERROR: ",err.Error())
 		os.Exit(1)
 	}
 	os.Exit(0)
 }
 
-// Designed to integrate with spf13/cobra
-func setupCobra(a *App, c *cobra.Command) error {
-	
-	if nil == c {
-		return errors.New("Invalid 'commander' given)")
-	}
-		
-	c.AddCommand(&cobra.Command{
-		Use: "version",
-		Short: "display version info",
-		Hidden: true,
-		Run: func(cmd *cobra.Command, args []string) {
-// 			c.HelpFunc()(c,[]string{})
-			printExtendedInfo(a, os.Stdout)
-			os.Exit(0)
-		},
-	})
-	return nil
-}
