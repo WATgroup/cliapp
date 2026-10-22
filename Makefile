@@ -11,3 +11,7 @@ tidy:	dummy
 
 build:
 	$(GOCMD) build
+
+
+gofumpt:
+	$(GOCMD) fmt

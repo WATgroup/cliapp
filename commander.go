@@ -5,12 +5,10 @@
 package cliapp
 
 import (
-	"github.com/spf13/cobra"
 	"github.com/WATgroup/errors"
+	"github.com/spf13/cobra"
 	"os"
 )
-
-
 
 type command = cobra.Command
 
@@ -18,9 +16,6 @@ type Commander interface {
 	Execute() error
 	AddCommand(...*cobra.Command)
 }
-
-
-
 
 // Designed to integrate with spf13/cobra
 func setupCobra(a *App, c Commander) error {
@@ -30,8 +25,8 @@ func setupCobra(a *App, c Commander) error {
 	}
 
 	c.AddCommand(&cobra.Command{
-		Use: "version",
-		Short: "display version info",
+		Use:    "version",
+		Short:  "display version info",
 		Hidden: true,
 		Run: func(cmd *cobra.Command, args []string) {
 			// 			c.HelpFunc()(c,[]string{})
